@@ -11,7 +11,7 @@ mod input;
 mod llm_client;
 mod managers;
 mod overlay;
-mod settings;
+pub mod settings;
 mod shortcut;
 mod signal_handle;
 mod transcription_coordinator;

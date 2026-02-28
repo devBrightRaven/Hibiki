@@ -867,4 +867,99 @@ mod tests {
         assert!(!settings.auto_submit);
         assert_eq!(settings.auto_submit_key, AutoSubmitKey::Enter);
     }
+
+    #[test]
+    fn default_settings_roundtrip_json() {
+        let settings = get_default_settings();
+        let json = serde_json::to_string(&settings).expect("serialize");
+        let deserialized: AppSettings = serde_json::from_str(&json).expect("deserialize");
+
+        assert_eq!(deserialized.push_to_talk, settings.push_to_talk);
+        assert_eq!(deserialized.audio_feedback, settings.audio_feedback);
+        assert_eq!(deserialized.selected_language, settings.selected_language);
+        assert_eq!(deserialized.overlay_position, settings.overlay_position);
+        assert_eq!(
+            deserialized.model_unload_timeout,
+            settings.model_unload_timeout
+        );
+        assert_eq!(deserialized.paste_method, settings.paste_method);
+        assert_eq!(deserialized.show_tray_icon, settings.show_tray_icon);
+        assert_eq!(deserialized.bindings.len(), settings.bindings.len());
+    }
+
+    #[test]
+    fn missing_fields_populated_with_defaults() {
+        // Minimal JSON with only required fields
+        let json = r#"{"bindings":{},"push_to_talk":false,"audio_feedback":true,"external_script_path":null}"#;
+        let settings: AppSettings = serde_json::from_str(json).expect("deserialize minimal JSON");
+
+        // serde(default) fields should have their defaults
+        assert_eq!(settings.selected_language, "auto");
+        assert_eq!(settings.model_unload_timeout, ModelUnloadTimeout::Never);
+        assert_eq!(settings.history_limit, 5);
+        assert!(!settings.debug_mode);
+        assert!(settings.update_checks_enabled);
+        assert!(settings.show_tray_icon);
+        assert_eq!(settings.typing_tool, TypingTool::Auto);
+    }
+
+    #[test]
+    fn invalid_json_is_rejected() {
+        let result = serde_json::from_str::<AppSettings>("not json at all");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn log_level_deserializes_from_string() {
+        let json = r#""debug""#;
+        let level: LogLevel = serde_json::from_str(json).expect("deserialize string log level");
+        assert_eq!(level, LogLevel::Debug);
+    }
+
+    #[test]
+    fn log_level_deserializes_from_legacy_number() {
+        let json = "3";
+        let level: LogLevel = serde_json::from_str(json).expect("deserialize numeric log level");
+        assert_eq!(level, LogLevel::Info);
+    }
+
+    #[test]
+    fn model_unload_timeout_to_seconds() {
+        assert_eq!(ModelUnloadTimeout::Never.to_seconds(), None);
+        assert_eq!(ModelUnloadTimeout::Immediately.to_seconds(), Some(0));
+        assert_eq!(ModelUnloadTimeout::Sec5.to_seconds(), Some(5));
+        assert_eq!(ModelUnloadTimeout::Min2.to_seconds(), Some(120));
+        assert_eq!(ModelUnloadTimeout::Min5.to_seconds(), Some(300));
+        assert_eq!(ModelUnloadTimeout::Hour1.to_seconds(), Some(3600));
+    }
+
+    #[test]
+    fn sound_theme_paths() {
+        assert_eq!(SoundTheme::Marimba.to_start_path(), "resources/marimba_start.wav");
+        assert_eq!(SoundTheme::Pop.to_stop_path(), "resources/pop_stop.wav");
+        assert_eq!(SoundTheme::Custom.to_start_path(), "resources/custom_start.wav");
+    }
+
+    #[test]
+    fn default_settings_have_three_bindings() {
+        let settings = get_default_settings();
+        assert_eq!(settings.bindings.len(), 3);
+        assert!(settings.bindings.contains_key("transcribe"));
+        assert!(settings.bindings.contains_key("transcribe_with_post_process"));
+        assert!(settings.bindings.contains_key("cancel"));
+    }
+
+    #[test]
+    fn default_settings_have_post_process_providers() {
+        let settings = get_default_settings();
+        assert!(!settings.post_process_providers.is_empty());
+        // Should have at least openai, groq, cerebras, custom
+        let provider_ids: Vec<&str> = settings
+            .post_process_providers
+            .iter()
+            .map(|p| p.id.as_str())
+            .collect();
+        assert!(provider_ids.contains(&"openai"));
+        assert!(provider_ids.contains(&"custom"));
+    }
 }

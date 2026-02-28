@@ -2,7 +2,8 @@ name: "test"
 on: [pull_request]
 
 jobs:
-  rust-tests:
+  test-rust-unit:
+    name: Rust Unit Tests
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -16,13 +17,166 @@ jobs:
         with:
           workspaces: "./src-tauri -> target"
 
-      - name: Use mock TranscriptionManager (CI only)
-        working-directory: src-tauri
-        run: |
-          # Swap to mock adapter - avoids compiling whisper/Vulkan
-          cp src/managers/transcription_mock.rs src/managers/transcription.rs
-          sed -i '/^transcribe-rs/d' Cargo.toml
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
 
-      - name: Run Rust tests
+      - name: Run Rust unit tests with coverage (mock transcription)
         working-directory: src-tauri
-        run: cargo test
+        run: cargo llvm-cov --no-default-features --features test-mock-transcription --lib --lcov --output-path ../rust-lcov.info
+
+      - name: Upload Rust coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rust-coverage
+          path: rust-lcov.info
+          retention-days: 7
+
+  test-rust-integration:
+    name: Rust Integration Tests
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev libasound2-dev libssl-dev libgtk-layer-shell-dev
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+
+      - name: Cache VAD model
+        uses: actions/cache@v4
+        with:
+          path: src-tauri/resources/models/silero_vad_v4.onnx
+          key: vad-model-v4
+
+      - name: Download VAD model
+        run: |
+          mkdir -p src-tauri/resources/models
+          if [ ! -f src-tauri/resources/models/silero_vad_v4.onnx ]; then
+            curl -fSL -o src-tauri/resources/models/silero_vad_v4.onnx https://blob.handy.computer/silero_vad_v4.onnx
+          fi
+
+      - name: Run Rust integration tests (mock transcription)
+        working-directory: src-tauri
+        run: cargo test --no-default-features --features test-mock-transcription --test integration
+
+  test-frontend:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run frontend tests with coverage
+        run: bun run test:coverage
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: coverage/
+          retention-days: 7
+
+  coverage-gate:
+    name: Coverage Gate (80%)
+    runs-on: ubuntu-latest
+    needs: [test-rust-unit, test-frontend]
+    if: always() && needs.test-rust-unit.result == 'success' && needs.test-frontend.result == 'success'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Rust coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: rust-coverage
+          path: coverage-merged/
+
+      - name: Download frontend coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-coverage
+          path: coverage-merged/frontend/
+
+      - name: Install lcov
+        run: sudo apt-get update && sudo apt-get install -y lcov
+
+      - name: Merge coverage reports
+        run: |
+          # Combine Rust and frontend lcov files
+          lcov \
+            --add-tracefile coverage-merged/rust-lcov.info \
+            --add-tracefile coverage-merged/frontend/lcov.info \
+            --output-file coverage-merged/combined-lcov.info \
+            --ignore-errors empty
+
+          # Generate summary
+          lcov --summary coverage-merged/combined-lcov.info --ignore-errors empty 2>&1 | tee coverage-merged/summary.txt
+
+      - name: Check coverage on changed files
+        run: |
+          # Get list of changed files in this PR
+          git fetch origin ${{ github.base_ref }} --depth=1
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- '*.rs' '*.ts' '*.tsx' | grep -v '__mocks__\|\.test\.\|test-setup\|bindings\.ts' || true)
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No source files changed — skipping coverage gate."
+            exit 0
+          fi
+
+          echo "Changed source files:"
+          echo "$CHANGED_FILES"
+          echo ""
+
+          # Extract per-file coverage from combined lcov
+          FAIL=0
+          for FILE in $CHANGED_FILES; do
+            # Normalize path for lcov lookup (try both with and without prefix)
+            COVERAGE=$(lcov --extract coverage-merged/combined-lcov.info "*/$FILE" --ignore-errors empty 2>/dev/null | \
+              lcov --summary /dev/stdin --ignore-errors empty 2>&1 | \
+              grep -oP 'lines\.*:\s*\K[\d.]+' || echo "")
+
+            if [ -z "$COVERAGE" ] || [ "$COVERAGE" = "0" ]; then
+              echo "  $FILE: no coverage data (new file or not instrumented)"
+              continue
+            fi
+
+            PASS=$(echo "$COVERAGE >= 80.0" | bc -l 2>/dev/null || echo "1")
+            if [ "$PASS" = "0" ]; then
+              echo "  FAIL: $FILE — ${COVERAGE}% (minimum: 80%)"
+              FAIL=1
+            else
+              echo "  OK:   $FILE — ${COVERAGE}%"
+            fi
+          done
+
+          echo ""
+          echo "--- Combined Coverage Summary ---"
+          cat coverage-merged/summary.txt
+
+          if [ "$FAIL" = "1" ]; then
+            echo ""
+            echo "Coverage gate failed: one or more changed files are below 80%."
+            exit 1
+          fi
+
+          echo ""
+          echo "Coverage gate passed."
+
+      - name: Upload merged coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: combined-coverage
+          path: coverage-merged/
+          retention-days: 7

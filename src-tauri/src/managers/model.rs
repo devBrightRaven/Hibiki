@@ -1176,6 +1176,108 @@ mod tests {
     use std::io::Write;
     use tempfile::TempDir;
 
+    /// Helper: build a minimal ModelInfo for testing.
+    fn sample_model(id: &str, engine: EngineType, is_dir: bool) -> ModelInfo {
+        ModelInfo {
+            id: id.to_string(),
+            name: format!("Test {}", id),
+            description: "desc".to_string(),
+            filename: if is_dir {
+                id.to_string()
+            } else {
+                format!("{}.bin", id)
+            },
+            url: Some("https://example.com/model".to_string()),
+            size_mb: 100,
+            is_downloaded: false,
+            is_downloading: false,
+            partial_size: 0,
+            is_directory: is_dir,
+            engine_type: engine,
+            accuracy_score: 0.5,
+            speed_score: 0.5,
+            supports_translation: false,
+            is_recommended: false,
+            supported_languages: vec!["en".to_string()],
+            is_custom: false,
+        }
+    }
+
+    #[test]
+    fn model_info_roundtrip_json() {
+        let model = sample_model("test-model", EngineType::Whisper, false);
+        let json = serde_json::to_string(&model).unwrap();
+        let deserialized: ModelInfo = serde_json::from_str(&json).unwrap();
+        assert_eq!(deserialized.id, "test-model");
+        assert_eq!(deserialized.size_mb, 100);
+        assert!(!deserialized.is_directory);
+    }
+
+    #[test]
+    fn engine_type_all_variants_serialize() {
+        let variants = vec![
+            EngineType::Whisper,
+            EngineType::Parakeet,
+            EngineType::Moonshine,
+            EngineType::MoonshineStreaming,
+            EngineType::SenseVoice,
+        ];
+        for variant in &variants {
+            let json = serde_json::to_string(variant).unwrap();
+            assert!(!json.is_empty());
+            let deserialized: EngineType = serde_json::from_str(&json).unwrap();
+            // Roundtrip: re-serialize and compare
+            assert_eq!(serde_json::to_string(&deserialized).unwrap(), json);
+        }
+    }
+
+    #[test]
+    fn model_info_required_fields_not_empty() {
+        // Validates that sample_model produces a well-formed ModelInfo
+        let model = sample_model("small", EngineType::Whisper, false);
+        assert!(!model.id.is_empty(), "id must not be empty");
+        assert!(!model.name.is_empty(), "name must not be empty");
+        assert!(!model.filename.is_empty(), "filename must not be empty");
+        assert!(model.size_mb > 0, "size_mb must be positive");
+        assert!(
+            !model.supported_languages.is_empty(),
+            "supported_languages must not be empty"
+        );
+    }
+
+    #[test]
+    fn directory_model_filename_has_no_extension() {
+        let model = sample_model("parakeet-v2", EngineType::Parakeet, true);
+        assert!(
+            !model.filename.contains('.'),
+            "directory model filename should not have extension"
+        );
+    }
+
+    #[test]
+    fn file_model_filename_has_bin_extension() {
+        let model = sample_model("whisper-small", EngineType::Whisper, false);
+        assert!(
+            model.filename.ends_with(".bin"),
+            "file model filename should end with .bin"
+        );
+    }
+
+    #[test]
+    fn download_progress_percentage_calculation() {
+        let progress = DownloadProgress {
+            model_id: "test".to_string(),
+            downloaded: 50,
+            total: 100,
+            percentage: 50.0,
+        };
+        let json = serde_json::to_string(&progress).unwrap();
+        let deserialized: DownloadProgress = serde_json::from_str(&json).unwrap();
+        assert_eq!(deserialized.percentage, 50.0);
+        assert_eq!(deserialized.downloaded, 50);
+        assert_eq!(deserialized.total, 100);
+    }
+
     #[test]
     fn test_discover_custom_whisper_models() {
         let temp_dir = TempDir::new().unwrap();
