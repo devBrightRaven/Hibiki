@@ -191,11 +191,7 @@ impl HistoryManager {
         post_process_prompt: Option<String>,
     ) -> Result<()> {
         let duration_seconds = Some(audio_samples.len() as f64 / 16000.0);
-        let word_count = Some(
-            transcription_text
-                .split_whitespace()
-                .count() as i64,
-        );
+        let word_count = Some(transcription_text.split_whitespace().count() as i64);
 
         let timestamp = Utc::now().timestamp();
         let file_name = format!("handy-{}.wav", timestamp);
@@ -634,11 +630,9 @@ mod tests {
         insert_entry(&conn, 300, "third entry", None);
 
         let count: i64 = conn
-            .query_row(
-                "SELECT COUNT(*) FROM transcription_history",
-                [],
-                |row| row.get(0),
-            )
+            .query_row("SELECT COUNT(*) FROM transcription_history", [], |row| {
+                row.get(0)
+            })
             .unwrap();
         assert_eq!(count, 3);
     }
@@ -683,11 +677,9 @@ mod tests {
         .unwrap();
 
         let count: i64 = conn
-            .query_row(
-                "SELECT COUNT(*) FROM transcription_history",
-                [],
-                |row| row.get(0),
-            )
+            .query_row("SELECT COUNT(*) FROM transcription_history", [], |row| {
+                row.get(0)
+            })
             .unwrap();
         assert_eq!(count, 1);
 
@@ -730,11 +722,9 @@ mod tests {
         }
 
         let count: i64 = conn
-            .query_row(
-                "SELECT COUNT(*) FROM transcription_history",
-                [],
-                |row| row.get(0),
-            )
+            .query_row("SELECT COUNT(*) FROM transcription_history", [], |row| {
+                row.get(0)
+            })
             .unwrap();
         assert_eq!(count, 3);
 
@@ -764,9 +754,7 @@ mod tests {
         // Simulate cleanup: only delete unsaved entries beyond limit
         let limit = 0usize; // aggressive limit
         let mut stmt = conn
-            .prepare(
-                "SELECT id FROM transcription_history WHERE saved = 0 ORDER BY timestamp DESC",
-            )
+            .prepare("SELECT id FROM transcription_history WHERE saved = 0 ORDER BY timestamp DESC")
             .unwrap();
         let unsaved_ids: Vec<i64> = stmt
             .query_map([], |row| row.get(0))
@@ -786,11 +774,9 @@ mod tests {
 
         // Saved entry should remain
         let count: i64 = conn
-            .query_row(
-                "SELECT COUNT(*) FROM transcription_history",
-                [],
-                |row| row.get(0),
-            )
+            .query_row("SELECT COUNT(*) FROM transcription_history", [], |row| {
+                row.get(0)
+            })
             .unwrap();
         assert_eq!(count, 1);
 
