@@ -51,9 +51,9 @@ describe("settingsStore", () => {
       mockedCommands.getAppSettings.mockResolvedValueOnce({
         status: "ok",
         data: {
-          ...mockedCommands.getAppSettings.mock.results[0]
-            ? (await mockedCommands.getAppSettings()).data as any
-            : {},
+          ...(mockedCommands.getAppSettings.mock.results[0]
+            ? ((await mockedCommands.getAppSettings()).data as any)
+            : {}),
           always_on_microphone: undefined as any,
           selected_microphone: null,
           clamshell_microphone: null,
@@ -141,13 +141,17 @@ describe("settingsStore", () => {
 
   describe("getSetting", () => {
     it("returns undefined when settings not loaded", () => {
-      expect(useSettingsStore.getState().getSetting("push_to_talk")).toBeUndefined();
+      expect(
+        useSettingsStore.getState().getSetting("push_to_talk"),
+      ).toBeUndefined();
     });
 
     it("returns the current value after initialization", async () => {
       await useSettingsStore.getState().initialize();
 
-      expect(useSettingsStore.getState().getSetting("push_to_talk")).toBe(false);
+      expect(useSettingsStore.getState().getSetting("push_to_talk")).toBe(
+        false,
+      );
       expect(useSettingsStore.getState().getSetting("app_language")).toBe("en");
     });
   });
@@ -156,9 +160,7 @@ describe("settingsStore", () => {
     it("prepends Default device", async () => {
       mockedCommands.getAvailableMicrophones.mockResolvedValueOnce({
         status: "ok",
-        data: [
-          { index: "1", name: "USB Mic", is_default: false },
-        ],
+        data: [{ index: "1", name: "USB Mic", is_default: false }],
       });
 
       await useSettingsStore.getState().refreshAudioDevices();

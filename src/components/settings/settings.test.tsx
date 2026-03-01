@@ -74,9 +74,7 @@ describe("GeneralSettings", () => {
     render(<GeneralSettings />);
 
     // i18n mock returns keys as-is
-    expect(
-      screen.getByText("settings.general.title"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("settings.general.title")).toBeInTheDocument();
     expect(screen.getByText("settings.sound.title")).toBeInTheDocument();
   });
 

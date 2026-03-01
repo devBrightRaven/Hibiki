@@ -67,9 +67,9 @@ describe("modelStore", () => {
     it("sets downloading state optimistically", async () => {
       const promise = useModelStore.getState().downloadModel("whisper-tiny");
 
-      expect(
-        useModelStore.getState().isModelDownloading("whisper-tiny"),
-      ).toBe(true);
+      expect(useModelStore.getState().isModelDownloading("whisper-tiny")).toBe(
+        true,
+      );
       expect(
         useModelStore.getState().getDownloadProgress("whisper-tiny"),
       ).toBeDefined();
@@ -83,12 +83,14 @@ describe("modelStore", () => {
         error: "disk full",
       });
 
-      const result = await useModelStore.getState().downloadModel("whisper-tiny");
+      const result = await useModelStore
+        .getState()
+        .downloadModel("whisper-tiny");
 
       expect(result).toBe(false);
-      expect(
-        useModelStore.getState().isModelDownloading("whisper-tiny"),
-      ).toBe(false);
+      expect(useModelStore.getState().isModelDownloading("whisper-tiny")).toBe(
+        false,
+      );
     });
   });
 
@@ -134,12 +136,14 @@ describe("modelStore", () => {
         data: [],
       });
 
-      const result = await useModelStore.getState().cancelDownload("whisper-tiny");
+      const result = await useModelStore
+        .getState()
+        .cancelDownload("whisper-tiny");
 
       expect(result).toBe(true);
-      expect(
-        useModelStore.getState().isModelDownloading("whisper-tiny"),
-      ).toBe(false);
+      expect(useModelStore.getState().isModelDownloading("whisper-tiny")).toBe(
+        false,
+      );
       expect(
         useModelStore.getState().getDownloadProgress("whisper-tiny"),
       ).toBeUndefined();

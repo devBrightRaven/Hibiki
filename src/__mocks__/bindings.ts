@@ -96,104 +96,276 @@ const defaultSettings: AppSettings = {
 };
 
 export const commands = {
-  changeBinding: vi.fn(async (_id: string, _binding: string): Promise<Result<BindingResponse, string>> =>
-    ok({ success: true, binding: null, error: null }),
+  changeBinding: vi.fn(
+    async (
+      _id: string,
+      _binding: string,
+    ): Promise<Result<BindingResponse, string>> =>
+      ok({ success: true, binding: null, error: null }),
   ),
-  resetBinding: vi.fn(async (_id: string): Promise<Result<BindingResponse, string>> =>
-    ok({ success: true, binding: null, error: null }),
+  resetBinding: vi.fn(
+    async (_id: string): Promise<Result<BindingResponse, string>> =>
+      ok({ success: true, binding: null, error: null }),
   ),
-  changePttSetting: vi.fn(async (_enabled: boolean): Promise<Result<null, string>> => ok(null)),
-  changeAudioFeedbackSetting: vi.fn(async (_enabled: boolean): Promise<Result<null, string>> => ok(null)),
-  changeAudioFeedbackVolumeSetting: vi.fn(async (_volume: number): Promise<Result<null, string>> => ok(null)),
-  changeSoundThemeSetting: vi.fn(async (_theme: string): Promise<Result<null, string>> => ok(null)),
-  changeStartHiddenSetting: vi.fn(async (_enabled: boolean): Promise<Result<null, string>> => ok(null)),
-  changeAutostartSetting: vi.fn(async (_enabled: boolean): Promise<Result<null, string>> => ok(null)),
-  changeTranslateToEnglishSetting: vi.fn(async (_enabled: boolean): Promise<Result<null, string>> => ok(null)),
-  changeSelectedLanguageSetting: vi.fn(async (_language: string): Promise<Result<null, string>> => ok(null)),
-  changeOverlayPositionSetting: vi.fn(async (_position: string): Promise<Result<null, string>> => ok(null)),
-  changeDebugModeSetting: vi.fn(async (_enabled: boolean): Promise<Result<null, string>> => ok(null)),
-  changeWordCorrectionThresholdSetting: vi.fn(async (_threshold: number): Promise<Result<null, string>> => ok(null)),
-  changePasteMethodSetting: vi.fn(async (_method: string): Promise<Result<null, string>> => ok(null)),
+  changePttSetting: vi.fn(
+    async (_enabled: boolean): Promise<Result<null, string>> => ok(null),
+  ),
+  changeAudioFeedbackSetting: vi.fn(
+    async (_enabled: boolean): Promise<Result<null, string>> => ok(null),
+  ),
+  changeAudioFeedbackVolumeSetting: vi.fn(
+    async (_volume: number): Promise<Result<null, string>> => ok(null),
+  ),
+  changeSoundThemeSetting: vi.fn(
+    async (_theme: string): Promise<Result<null, string>> => ok(null),
+  ),
+  changeStartHiddenSetting: vi.fn(
+    async (_enabled: boolean): Promise<Result<null, string>> => ok(null),
+  ),
+  changeAutostartSetting: vi.fn(
+    async (_enabled: boolean): Promise<Result<null, string>> => ok(null),
+  ),
+  changeTranslateToEnglishSetting: vi.fn(
+    async (_enabled: boolean): Promise<Result<null, string>> => ok(null),
+  ),
+  changeSelectedLanguageSetting: vi.fn(
+    async (_language: string): Promise<Result<null, string>> => ok(null),
+  ),
+  changeOverlayPositionSetting: vi.fn(
+    async (_position: string): Promise<Result<null, string>> => ok(null),
+  ),
+  changeDebugModeSetting: vi.fn(
+    async (_enabled: boolean): Promise<Result<null, string>> => ok(null),
+  ),
+  changeWordCorrectionThresholdSetting: vi.fn(
+    async (_threshold: number): Promise<Result<null, string>> => ok(null),
+  ),
+  changePasteMethodSetting: vi.fn(
+    async (_method: string): Promise<Result<null, string>> => ok(null),
+  ),
   getAvailableTypingTools: vi.fn(async (): Promise<string[]> => ["auto"]),
-  changeTypingToolSetting: vi.fn(async (_tool: string): Promise<Result<null, string>> => ok(null)),
-  changeExternalScriptPathSetting: vi.fn(async (_path: string | null): Promise<Result<null, string>> => ok(null)),
-  changeClipboardHandlingSetting: vi.fn(async (_handling: string): Promise<Result<null, string>> => ok(null)),
-  changeAutoSubmitSetting: vi.fn(async (_enabled: boolean): Promise<Result<null, string>> => ok(null)),
-  changeAutoSubmitKeySetting: vi.fn(async (_key: string): Promise<Result<null, string>> => ok(null)),
-  changePostProcessEnabledSetting: vi.fn(async (_enabled: boolean): Promise<Result<null, string>> => ok(null)),
-  changeExperimentalEnabledSetting: vi.fn(async (_enabled: boolean): Promise<Result<null, string>> => ok(null)),
-  changePostProcessBaseUrlSetting: vi.fn(async (_providerId: string, _baseUrl: string): Promise<Result<null, string>> => ok(null)),
-  changePostProcessApiKeySetting: vi.fn(async (_providerId: string, _apiKey: string): Promise<Result<null, string>> => ok(null)),
-  changePostProcessModelSetting: vi.fn(async (_providerId: string, _model: string): Promise<Result<null, string>> => ok(null)),
-  setPostProcessProvider: vi.fn(async (_providerId: string): Promise<Result<null, string>> => ok(null)),
-  fetchPostProcessModels: vi.fn(async (_providerId: string): Promise<Result<string[], string>> => ok([])),
-  addPostProcessPrompt: vi.fn(async (name: string, prompt: string): Promise<Result<LLMPrompt, string>> =>
-    ok({ id: "mock-id", name, prompt }),
+  changeTypingToolSetting: vi.fn(
+    async (_tool: string): Promise<Result<null, string>> => ok(null),
   ),
-  updatePostProcessPrompt: vi.fn(async (_id: string, _name: string, _prompt: string): Promise<Result<null, string>> => ok(null)),
-  deletePostProcessPrompt: vi.fn(async (_id: string): Promise<Result<null, string>> => ok(null)),
-  setPostProcessSelectedPrompt: vi.fn(async (_id: string): Promise<Result<null, string>> => ok(null)),
-  updateCustomWords: vi.fn(async (_words: string[]): Promise<Result<null, string>> => ok(null)),
-  suspendBinding: vi.fn(async (_id: string): Promise<Result<null, string>> => ok(null)),
-  resumeBinding: vi.fn(async (_id: string): Promise<Result<null, string>> => ok(null)),
-  changeMuteWhileRecordingSetting: vi.fn(async (_enabled: boolean): Promise<Result<null, string>> => ok(null)),
-  changeAppendTrailingSpaceSetting: vi.fn(async (_enabled: boolean): Promise<Result<null, string>> => ok(null)),
-  changeAppLanguageSetting: vi.fn(async (_language: string): Promise<Result<null, string>> => ok(null)),
-  changeUpdateChecksSetting: vi.fn(async (_enabled: boolean): Promise<Result<null, string>> => ok(null)),
-  changeKeyboardImplementationSetting: vi.fn(async (_impl: string): Promise<Result<ImplementationChangeResult, string>> =>
-    ok({ success: true, reset_bindings: [] }),
+  changeExternalScriptPathSetting: vi.fn(
+    async (_path: string | null): Promise<Result<null, string>> => ok(null),
+  ),
+  changeClipboardHandlingSetting: vi.fn(
+    async (_handling: string): Promise<Result<null, string>> => ok(null),
+  ),
+  changeAutoSubmitSetting: vi.fn(
+    async (_enabled: boolean): Promise<Result<null, string>> => ok(null),
+  ),
+  changeAutoSubmitKeySetting: vi.fn(
+    async (_key: string): Promise<Result<null, string>> => ok(null),
+  ),
+  changePostProcessEnabledSetting: vi.fn(
+    async (_enabled: boolean): Promise<Result<null, string>> => ok(null),
+  ),
+  changeExperimentalEnabledSetting: vi.fn(
+    async (_enabled: boolean): Promise<Result<null, string>> => ok(null),
+  ),
+  changePostProcessBaseUrlSetting: vi.fn(
+    async (
+      _providerId: string,
+      _baseUrl: string,
+    ): Promise<Result<null, string>> => ok(null),
+  ),
+  changePostProcessApiKeySetting: vi.fn(
+    async (
+      _providerId: string,
+      _apiKey: string,
+    ): Promise<Result<null, string>> => ok(null),
+  ),
+  changePostProcessModelSetting: vi.fn(
+    async (
+      _providerId: string,
+      _model: string,
+    ): Promise<Result<null, string>> => ok(null),
+  ),
+  setPostProcessProvider: vi.fn(
+    async (_providerId: string): Promise<Result<null, string>> => ok(null),
+  ),
+  fetchPostProcessModels: vi.fn(
+    async (_providerId: string): Promise<Result<string[], string>> => ok([]),
+  ),
+  addPostProcessPrompt: vi.fn(
+    async (name: string, prompt: string): Promise<Result<LLMPrompt, string>> =>
+      ok({ id: "mock-id", name, prompt }),
+  ),
+  updatePostProcessPrompt: vi.fn(
+    async (
+      _id: string,
+      _name: string,
+      _prompt: string,
+    ): Promise<Result<null, string>> => ok(null),
+  ),
+  deletePostProcessPrompt: vi.fn(
+    async (_id: string): Promise<Result<null, string>> => ok(null),
+  ),
+  setPostProcessSelectedPrompt: vi.fn(
+    async (_id: string): Promise<Result<null, string>> => ok(null),
+  ),
+  updateCustomWords: vi.fn(
+    async (_words: string[]): Promise<Result<null, string>> => ok(null),
+  ),
+  suspendBinding: vi.fn(
+    async (_id: string): Promise<Result<null, string>> => ok(null),
+  ),
+  resumeBinding: vi.fn(
+    async (_id: string): Promise<Result<null, string>> => ok(null),
+  ),
+  changeMuteWhileRecordingSetting: vi.fn(
+    async (_enabled: boolean): Promise<Result<null, string>> => ok(null),
+  ),
+  changeAppendTrailingSpaceSetting: vi.fn(
+    async (_enabled: boolean): Promise<Result<null, string>> => ok(null),
+  ),
+  changeAppLanguageSetting: vi.fn(
+    async (_language: string): Promise<Result<null, string>> => ok(null),
+  ),
+  changeUpdateChecksSetting: vi.fn(
+    async (_enabled: boolean): Promise<Result<null, string>> => ok(null),
+  ),
+  changeKeyboardImplementationSetting: vi.fn(
+    async (
+      _impl: string,
+    ): Promise<Result<ImplementationChangeResult, string>> =>
+      ok({ success: true, reset_bindings: [] }),
   ),
   getKeyboardImplementation: vi.fn(async (): Promise<string> => "tauri"),
-  changeShowTrayIconSetting: vi.fn(async (_enabled: boolean): Promise<Result<null, string>> => ok(null)),
-  startHandyKeysRecording: vi.fn(async (_bindingId: string): Promise<Result<null, string>> => ok(null)),
-  stopHandyKeysRecording: vi.fn(async (): Promise<Result<null, string>> => ok(null)),
-  triggerUpdateCheck: vi.fn(async (): Promise<Result<null, string>> => ok(null)),
+  changeShowTrayIconSetting: vi.fn(
+    async (_enabled: boolean): Promise<Result<null, string>> => ok(null),
+  ),
+  startHandyKeysRecording: vi.fn(
+    async (_bindingId: string): Promise<Result<null, string>> => ok(null),
+  ),
+  stopHandyKeysRecording: vi.fn(
+    async (): Promise<Result<null, string>> => ok(null),
+  ),
+  triggerUpdateCheck: vi.fn(
+    async (): Promise<Result<null, string>> => ok(null),
+  ),
   cancelOperation: vi.fn(async (): Promise<void> => {}),
-  getAppDirPath: vi.fn(async (): Promise<Result<string, string>> => ok("/mock/app/dir")),
-  getAppSettings: vi.fn(async (): Promise<Result<AppSettings, string>> => ok({ ...defaultSettings })),
-  getDefaultSettings: vi.fn(async (): Promise<Result<AppSettings, string>> => ok({ ...defaultSettings })),
-  getLogDirPath: vi.fn(async (): Promise<Result<string, string>> => ok("/mock/log/dir")),
-  setLogLevel: vi.fn(async (_level: string): Promise<Result<null, string>> => ok(null)),
-  openRecordingsFolder: vi.fn(async (): Promise<Result<null, string>> => ok(null)),
+  getAppDirPath: vi.fn(
+    async (): Promise<Result<string, string>> => ok("/mock/app/dir"),
+  ),
+  getAppSettings: vi.fn(
+    async (): Promise<Result<AppSettings, string>> =>
+      ok({ ...defaultSettings }),
+  ),
+  getDefaultSettings: vi.fn(
+    async (): Promise<Result<AppSettings, string>> =>
+      ok({ ...defaultSettings }),
+  ),
+  getLogDirPath: vi.fn(
+    async (): Promise<Result<string, string>> => ok("/mock/log/dir"),
+  ),
+  setLogLevel: vi.fn(
+    async (_level: string): Promise<Result<null, string>> => ok(null),
+  ),
+  openRecordingsFolder: vi.fn(
+    async (): Promise<Result<null, string>> => ok(null),
+  ),
   openLogDir: vi.fn(async (): Promise<Result<null, string>> => ok(null)),
   openAppDataDir: vi.fn(async (): Promise<Result<null, string>> => ok(null)),
   checkAppleIntelligenceAvailable: vi.fn(async (): Promise<boolean> => false),
   initializeEnigo: vi.fn(async (): Promise<Result<null, string>> => ok(null)),
-  initializeShortcuts: vi.fn(async (): Promise<Result<null, string>> => ok(null)),
-  getAvailableModels: vi.fn(async (): Promise<Result<ModelInfo[], string>> => ok([])),
-  getModelInfo: vi.fn(async (_modelId: string): Promise<Result<ModelInfo | null, string>> => ok(null)),
-  downloadModel: vi.fn(async (_modelId: string): Promise<Result<null, string>> => ok(null)),
-  deleteModel: vi.fn(async (_modelId: string): Promise<Result<null, string>> => ok(null)),
-  cancelDownload: vi.fn(async (_modelId: string): Promise<Result<null, string>> => ok(null)),
-  setActiveModel: vi.fn(async (_modelId: string): Promise<Result<null, string>> => ok(null)),
+  initializeShortcuts: vi.fn(
+    async (): Promise<Result<null, string>> => ok(null),
+  ),
+  getAvailableModels: vi.fn(
+    async (): Promise<Result<ModelInfo[], string>> => ok([]),
+  ),
+  getModelInfo: vi.fn(
+    async (_modelId: string): Promise<Result<ModelInfo | null, string>> =>
+      ok(null),
+  ),
+  downloadModel: vi.fn(
+    async (_modelId: string): Promise<Result<null, string>> => ok(null),
+  ),
+  deleteModel: vi.fn(
+    async (_modelId: string): Promise<Result<null, string>> => ok(null),
+  ),
+  cancelDownload: vi.fn(
+    async (_modelId: string): Promise<Result<null, string>> => ok(null),
+  ),
+  setActiveModel: vi.fn(
+    async (_modelId: string): Promise<Result<null, string>> => ok(null),
+  ),
   getCurrentModel: vi.fn(async (): Promise<Result<string, string>> => ok("")),
-  getTranscriptionModelStatus: vi.fn(async (): Promise<Result<string | null, string>> => ok(null)),
-  isModelLoading: vi.fn(async (): Promise<Result<boolean, string>> => ok(false)),
-  hasAnyModelsAvailable: vi.fn(async (): Promise<Result<boolean, string>> => ok(false)),
-  hasAnyModelsOrDownloads: vi.fn(async (): Promise<Result<boolean, string>> => ok(false)),
-  updateMicrophoneMode: vi.fn(async (_alwaysOn: boolean): Promise<Result<null, string>> => ok(null)),
-  getMicrophoneMode: vi.fn(async (): Promise<Result<boolean, string>> => ok(false)),
-  getAvailableMicrophones: vi.fn(async (): Promise<Result<AudioDevice[], string>> => ok([])),
-  setSelectedMicrophone: vi.fn(async (_deviceName: string): Promise<Result<null, string>> => ok(null)),
-  getSelectedMicrophone: vi.fn(async (): Promise<Result<string, string>> => ok("")),
-  getAvailableOutputDevices: vi.fn(async (): Promise<Result<AudioDevice[], string>> => ok([])),
-  setSelectedOutputDevice: vi.fn(async (_deviceName: string): Promise<Result<null, string>> => ok(null)),
-  getSelectedOutputDevice: vi.fn(async (): Promise<Result<string, string>> => ok("")),
+  getTranscriptionModelStatus: vi.fn(
+    async (): Promise<Result<string | null, string>> => ok(null),
+  ),
+  isModelLoading: vi.fn(
+    async (): Promise<Result<boolean, string>> => ok(false),
+  ),
+  hasAnyModelsAvailable: vi.fn(
+    async (): Promise<Result<boolean, string>> => ok(false),
+  ),
+  hasAnyModelsOrDownloads: vi.fn(
+    async (): Promise<Result<boolean, string>> => ok(false),
+  ),
+  updateMicrophoneMode: vi.fn(
+    async (_alwaysOn: boolean): Promise<Result<null, string>> => ok(null),
+  ),
+  getMicrophoneMode: vi.fn(
+    async (): Promise<Result<boolean, string>> => ok(false),
+  ),
+  getAvailableMicrophones: vi.fn(
+    async (): Promise<Result<AudioDevice[], string>> => ok([]),
+  ),
+  setSelectedMicrophone: vi.fn(
+    async (_deviceName: string): Promise<Result<null, string>> => ok(null),
+  ),
+  getSelectedMicrophone: vi.fn(
+    async (): Promise<Result<string, string>> => ok(""),
+  ),
+  getAvailableOutputDevices: vi.fn(
+    async (): Promise<Result<AudioDevice[], string>> => ok([]),
+  ),
+  setSelectedOutputDevice: vi.fn(
+    async (_deviceName: string): Promise<Result<null, string>> => ok(null),
+  ),
+  getSelectedOutputDevice: vi.fn(
+    async (): Promise<Result<string, string>> => ok(""),
+  ),
   playTestSound: vi.fn(async (_soundType: string): Promise<void> => {}),
-  checkCustomSounds: vi.fn(async (): Promise<CustomSounds> => ({ start: false, stop: false })),
-  setClamshellMicrophone: vi.fn(async (_deviceName: string): Promise<Result<null, string>> => ok(null)),
-  getClamshellMicrophone: vi.fn(async (): Promise<Result<string, string>> => ok("")),
+  checkCustomSounds: vi.fn(
+    async (): Promise<CustomSounds> => ({ start: false, stop: false }),
+  ),
+  setClamshellMicrophone: vi.fn(
+    async (_deviceName: string): Promise<Result<null, string>> => ok(null),
+  ),
+  getClamshellMicrophone: vi.fn(
+    async (): Promise<Result<string, string>> => ok(""),
+  ),
   isRecording: vi.fn(async (): Promise<boolean> => false),
   setModelUnloadTimeout: vi.fn(async (_timeout: string): Promise<void> => {}),
-  getModelLoadStatus: vi.fn(async (): Promise<Result<ModelLoadStatus, string>> =>
-    ok({ is_loaded: false, current_model: null }),
+  getModelLoadStatus: vi.fn(
+    async (): Promise<Result<ModelLoadStatus, string>> =>
+      ok({ is_loaded: false, current_model: null }),
   ),
-  unloadModelManually: vi.fn(async (): Promise<Result<null, string>> => ok(null)),
-  getHistoryEntries: vi.fn(async (): Promise<Result<HistoryEntry[], string>> => ok([])),
-  toggleHistoryEntrySaved: vi.fn(async (_id: number): Promise<Result<null, string>> => ok(null)),
-  getAudioFilePath: vi.fn(async (_fileName: string): Promise<Result<string, string>> => ok("")),
-  deleteHistoryEntry: vi.fn(async (_id: number): Promise<Result<null, string>> => ok(null)),
-  updateHistoryLimit: vi.fn(async (_limit: number): Promise<Result<null, string>> => ok(null)),
-  updateRecordingRetentionPeriod: vi.fn(async (_period: string): Promise<Result<null, string>> => ok(null)),
+  unloadModelManually: vi.fn(
+    async (): Promise<Result<null, string>> => ok(null),
+  ),
+  getHistoryEntries: vi.fn(
+    async (): Promise<Result<HistoryEntry[], string>> => ok([]),
+  ),
+  toggleHistoryEntrySaved: vi.fn(
+    async (_id: number): Promise<Result<null, string>> => ok(null),
+  ),
+  getAudioFilePath: vi.fn(
+    async (_fileName: string): Promise<Result<string, string>> => ok(""),
+  ),
+  deleteHistoryEntry: vi.fn(
+    async (_id: number): Promise<Result<null, string>> => ok(null),
+  ),
+  updateHistoryLimit: vi.fn(
+    async (_limit: number): Promise<Result<null, string>> => ok(null),
+  ),
+  updateRecordingRetentionPeriod: vi.fn(
+    async (_period: string): Promise<Result<null, string>> => ok(null),
+  ),
   isLaptop: vi.fn(async (): Promise<Result<boolean, string>> => ok(false)),
 };
