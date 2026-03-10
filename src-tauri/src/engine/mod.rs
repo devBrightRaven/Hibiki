@@ -1,5 +1,12 @@
 pub mod types;
 
+#[cfg(feature = "transcribe-rs")]
+pub mod parakeet_engine;
+#[cfg(feature = "transcribe-rs")]
+pub mod sensevoice_engine;
+#[cfg(feature = "transcribe-rs")]
+pub mod whisper_engine;
+
 use anyhow::Result;
 pub use types::{EngineId, TranscriptSegment};
 
