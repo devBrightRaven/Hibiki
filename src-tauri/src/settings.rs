@@ -360,6 +360,8 @@ pub struct AppSettings {
     #[serde(default = "default_typing_tool")]
     pub typing_tool: TypingTool,
     pub external_script_path: Option<String>,
+    #[serde(default = "default_refinement_enabled")]
+    pub refinement_enabled: bool,
 }
 
 fn default_model() -> String {
@@ -415,6 +417,10 @@ fn default_paste_delay_ms() -> u64 {
 
 fn default_auto_submit() -> bool {
     false
+}
+
+fn default_refinement_enabled() -> bool {
+    true
 }
 
 fn default_history_limit() -> usize {
@@ -724,6 +730,7 @@ pub fn get_default_settings() -> AppSettings {
         paste_delay_ms: default_paste_delay_ms(),
         typing_tool: default_typing_tool(),
         external_script_path: None,
+        refinement_enabled: default_refinement_enabled(),
     }
 }
 
@@ -855,6 +862,10 @@ pub fn get_history_limit(app: &AppHandle) -> usize {
 pub fn get_recording_retention_period(app: &AppHandle) -> RecordingRetentionPeriod {
     let settings = get_settings(app);
     settings.recording_retention_period
+}
+
+pub fn get_refinement_enabled(app: &AppHandle) -> bool {
+    get_settings(app).refinement_enabled
 }
 
 #[cfg(test)]
