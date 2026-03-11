@@ -11,14 +11,12 @@ use transcribe_rs::{
 /// Wrapper around `transcribe_rs::SenseVoiceEngine` implementing our `SttEngine` trait.
 pub struct SenseVoiceSttEngine {
     inner: Mutex<Inner>,
-    language: Option<String>,
 }
 
 impl SenseVoiceSttEngine {
-    pub fn new(engine: Inner, language: Option<String>) -> Self {
+    pub fn new(engine: Inner) -> Self {
         Self {
             inner: Mutex::new(engine),
-            language,
         }
     }
 
@@ -47,17 +45,21 @@ impl SttEngine for SenseVoiceSttEngine {
         &["auto", "en", "zh", "ja", "ko", "yue"]
     }
 
-    fn transcribe(&self, audio_samples: &[f32], _sample_rate: u32) -> Result<TranscriptSegment> {
+    fn transcribe(
+        &self,
+        audio_samples: &[f32],
+        _sample_rate: u32,
+        language: Option<&str>,
+        _translate_to_english: bool,
+    ) -> Result<TranscriptSegment> {
         let start = std::time::Instant::now();
 
-        let language = self
-            .language
-            .as_deref()
+        let sv_language = language
             .map(Self::resolve_language)
             .unwrap_or(SenseVoiceLanguage::Auto);
 
         let params = SenseVoiceInferenceParams {
-            language,
+            language: sv_language,
             use_itn: true,
         };
 
@@ -74,7 +76,7 @@ impl SttEngine for SenseVoiceSttEngine {
 
         Ok(TranscriptSegment {
             raw_text: result.text,
-            language: self.language.clone(),
+            language: language.map(String::from),
             engine_id: EngineId::SenseVoice,
             duration_ms,
         })

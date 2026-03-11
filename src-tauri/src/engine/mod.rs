@@ -17,5 +17,15 @@ pub trait SttEngine: Send + Sync {
     fn id(&self) -> EngineId;
     fn display_name(&self) -> &str;
     fn supported_languages(&self) -> &[&str];
-    fn transcribe(&self, audio_samples: &[f32], sample_rate: u32) -> Result<TranscriptSegment>;
+    /// Transcribe audio samples to text.
+    ///
+    /// Language and translate are passed per-call so users can switch settings
+    /// without reloading the model.
+    fn transcribe(
+        &self,
+        audio_samples: &[f32],
+        sample_rate: u32,
+        language: Option<&str>,
+        translate_to_english: bool,
+    ) -> Result<TranscriptSegment>;
 }

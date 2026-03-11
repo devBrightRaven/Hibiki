@@ -32,7 +32,13 @@ impl SttEngine for ParakeetSttEngine {
         &["en"]
     }
 
-    fn transcribe(&self, audio_samples: &[f32], _sample_rate: u32) -> Result<TranscriptSegment> {
+    fn transcribe(
+        &self,
+        audio_samples: &[f32],
+        _sample_rate: u32,
+        _language: Option<&str>,
+        _translate_to_english: bool,
+    ) -> Result<TranscriptSegment> {
         let start = std::time::Instant::now();
 
         let params = ParakeetInferenceParams {
