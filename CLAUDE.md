@@ -34,11 +34,22 @@ curl -o src-tauri/resources/models/silero_vad_v4.onnx https://blob.handy.compute
 
 ## Architecture Overview
 
-Handy is a cross-platform desktop speech-to-text app built with Tauri 2.x (Rust backend + React/TypeScript frontend).
+Hibiki is the voice foundation layer for BR-OS, built with Tauri 2.x (Rust backend + React/TypeScript frontend). Forked from Handy, it adds a modular STT pipeline with swappable engines, rule-based refinement, and prosodic analysis interfaces.
 
 ### Backend Structure (src-tauri/src/)
 
 - `lib.rs` - Main entry point, Tauri setup, manager initialization
+- `engine/` - Modular STT engine layer:
+  - `mod.rs` - `SttEngine` trait definition
+  - `types.rs` - `EngineId`, `TranscriptSegment`
+  - `router.rs` - `EngineRouter` for runtime engine selection
+  - `whisper_engine.rs` - Whisper wrapper (behind `transcribe-rs` feature)
+  - `sensevoice_engine.rs` - SenseVoice wrapper
+  - `parakeet_engine.rs` - Parakeet wrapper
+- `refinement/` - Post-transcription text refinement:
+  - `rules.rs` - Rule-based filler removal (EN + zh-TW)
+  - `types.rs` - `RefinedTranscript`
+- `prosodic/` - Prosodic analysis interface (stub, no impl)
 - `managers/` - Core business logic:
   - `audio.rs` - Audio recording and device management
   - `model.rs` - Model downloading and management
@@ -121,7 +132,7 @@ Use conventional commits:
 
 ## CLI Parameters
 
-Handy supports command-line parameters on all platforms for integration with scripts, window managers, and autostart configurations.
+Hibiki supports command-line parameters on all platforms for integration with scripts, window managers, and autostart configurations.
 
 **Implementation files:**
 

@@ -98,7 +98,7 @@ fn generate_and_read_mixed_fixture() {
 
 #[test]
 fn vad_processes_audio_frames_without_error() {
-    use handy_app_lib::audio_toolkit::vad::{SileroVad, VoiceActivityDetector};
+    use hibiki_app_lib::audio_toolkit::vad::{SileroVad, VoiceActivityDetector};
 
     let model_path = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("resources")
@@ -136,7 +136,7 @@ fn vad_processes_audio_frames_without_error() {
 
 #[test]
 fn vad_returns_no_speech_for_silence() {
-    use handy_app_lib::audio_toolkit::vad::{SileroVad, VoiceActivityDetector};
+    use hibiki_app_lib::audio_toolkit::vad::{SileroVad, VoiceActivityDetector};
 
     let model_path = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("resources")
@@ -173,7 +173,7 @@ fn vad_returns_no_speech_for_silence() {
 
 #[test]
 fn settings_default_snapshot() {
-    use handy_app_lib::settings::get_default_settings;
+    use hibiki_app_lib::settings::get_default_settings;
 
     let defaults = get_default_settings();
     let json = serde_json::to_string_pretty(&defaults).expect("serialize defaults");

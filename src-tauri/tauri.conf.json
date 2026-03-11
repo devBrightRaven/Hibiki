@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Handy",
+  "productName": "Hibiki",
   "version": "0.7.8",
-  "identifier": "com.pais.handy",
+  "identifier": "com.brightraven.hibiki",
   "build": {
     "beforeDevCommand": "bun run dev",
     "devUrl": "http://localhost:1420",
@@ -14,7 +14,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Handy",
+        "title": "Hibiki",
         "width": 680,
         "height": 570,
         "minWidth": 680,
@@ -70,7 +70,7 @@
       }
     },
     "windows": {
-      "signCommand": "trusted-signing-cli -e https://eus.codesigning.azure.net/ -a CJ-Signing -c cjpais-dev -d Handy %1"
+      "signCommand": "trusted-signing-cli -e https://eus.codesigning.azure.net/ -a CJ-Signing -c cjpais-dev -d Hibiki %1"
     }
   },
   "plugins": {
