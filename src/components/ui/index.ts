@@ -1,4 +1,5 @@
 export { Dropdown } from "./Dropdown";
+export { SegmentedControl } from "./SegmentedControl";
 export { Slider } from "./Slider";
 export { ToggleSwitch } from "./ToggleSwitch";
 export { SettingContainer } from "./SettingContainer";

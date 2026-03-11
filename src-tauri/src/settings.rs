@@ -362,6 +362,8 @@ pub struct AppSettings {
     pub external_script_path: Option<String>,
     #[serde(default = "default_refinement_enabled")]
     pub refinement_enabled: bool,
+    #[serde(default = "default_preferred_engine")]
+    pub preferred_engine: String,
 }
 
 fn default_model() -> String {
@@ -421,6 +423,10 @@ fn default_auto_submit() -> bool {
 
 fn default_refinement_enabled() -> bool {
     true
+}
+
+fn default_preferred_engine() -> String {
+    "auto".to_string()
 }
 
 fn default_history_limit() -> usize {
@@ -731,6 +737,7 @@ pub fn get_default_settings() -> AppSettings {
         typing_tool: default_typing_tool(),
         external_script_path: None,
         refinement_enabled: default_refinement_enabled(),
+        preferred_engine: default_preferred_engine(),
     }
 }
 
