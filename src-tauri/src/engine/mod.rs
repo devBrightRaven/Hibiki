@@ -1,3 +1,4 @@
+pub mod router;
 pub mod types;
 
 #[cfg(feature = "transcribe-rs")]
