@@ -605,6 +605,23 @@ mod real {
             // Filter out filler words and hallucinations
             let filtered_result = filter_transcription_output(&corrected_result);
 
+            // Apply rule-based refinement (filler removal) if enabled
+            let final_result = if settings.refinement_enabled {
+                let refiner = crate::refinement::RuleBasedRefiner::new();
+                let detected_lang = settings.selected_language.as_str();
+                let lang = if detected_lang == "auto" { "en" } else { detected_lang };
+                let refined = refiner.refine(&filtered_result, lang);
+                if refined.refinement_applied {
+                    debug!(
+                        "Refinement applied: '{}' -> '{}'",
+                        refined.original_text, refined.refined_text
+                    );
+                }
+                refined.refined_text
+            } else {
+                filtered_result
+            };
+
             let et = std::time::Instant::now();
             let translation_note = if settings.translate_to_english {
                 " (translated)"
@@ -616,8 +633,6 @@ mod real {
                 (et - st).as_millis(),
                 translation_note
             );
-
-            let final_result = filtered_result;
 
             if final_result.is_empty() {
                 info!("Transcription result is empty");

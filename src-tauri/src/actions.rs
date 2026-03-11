@@ -492,6 +492,7 @@ impl ShortcutAction for TranscribeAction {
                                         transcription_for_history,
                                         post_processed_text,
                                         post_process_prompt,
+                                        None, // original_text — populated when refinement is applied
                                     )
                                     .await
                                 {

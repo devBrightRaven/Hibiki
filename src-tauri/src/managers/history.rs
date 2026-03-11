@@ -34,6 +34,7 @@ static MIGRATIONS: &[M] = &[
     M::up("ALTER TABLE transcription_history ADD COLUMN word_count INTEGER;"),
     M::up("ALTER TABLE transcription_history ADD COLUMN duration_seconds REAL;"),
     M::up("ALTER TABLE transcription_history ADD COLUMN detected_language TEXT;"),
+    M::up("ALTER TABLE transcription_history ADD COLUMN original_text TEXT;"),
 ];
 
 #[derive(Clone, Debug, Serialize, Deserialize, Type)]
@@ -189,6 +190,7 @@ impl HistoryManager {
         transcription_text: String,
         post_processed_text: Option<String>,
         post_process_prompt: Option<String>,
+        original_text: Option<String>,
     ) -> Result<()> {
         let duration_seconds = Some(audio_samples.len() as f64 / 16000.0);
         let word_count = Some(transcription_text.split_whitespace().count() as i64);
@@ -212,6 +214,7 @@ impl HistoryManager {
             word_count,
             duration_seconds,
             None, // detected_language — populated by caller if available
+            original_text,
         )?;
 
         // Clean up old entries
@@ -236,11 +239,12 @@ impl HistoryManager {
         word_count: Option<i64>,
         duration_seconds: Option<f64>,
         detected_language: Option<String>,
+        original_text: Option<String>,
     ) -> Result<()> {
         let conn = self.get_connection()?;
         conn.execute(
-            "INSERT INTO transcription_history (file_name, timestamp, saved, title, transcription_text, post_processed_text, post_process_prompt, word_count, duration_seconds, detected_language) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
-            params![file_name, timestamp, false, title, transcription_text, post_processed_text, post_process_prompt, word_count, duration_seconds, detected_language],
+            "INSERT INTO transcription_history (file_name, timestamp, saved, title, transcription_text, post_processed_text, post_process_prompt, word_count, duration_seconds, detected_language, original_text) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)",
+            params![file_name, timestamp, false, title, transcription_text, post_processed_text, post_process_prompt, word_count, duration_seconds, detected_language, original_text],
         )?;
 
         debug!("Saved transcription to database");
