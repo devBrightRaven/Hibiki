@@ -1,20 +1,17 @@
 use super::{EngineId, SttEngine, TranscriptSegment};
 use anyhow::Result;
 use std::sync::Mutex;
-use transcribe_rs::{
-    engines::parakeet::{ParakeetEngine as Inner, ParakeetInferenceParams, TimestampGranularity},
-    TranscriptionEngine,
-};
+use transcribe_rs::{onnx::parakeet::ParakeetModel, SpeechModel, TranscribeOptions};
 
-/// Wrapper around `transcribe_rs::ParakeetEngine` implementing our `SttEngine` trait.
+/// Wrapper around `transcribe_rs::onnx::parakeet::ParakeetModel` implementing our `SttEngine` trait.
 pub struct ParakeetSttEngine {
-    inner: Mutex<Inner>,
+    inner: Mutex<ParakeetModel>,
 }
 
 impl ParakeetSttEngine {
-    pub fn new(engine: Inner) -> Self {
+    pub fn new(model: ParakeetModel) -> Self {
         Self {
-            inner: Mutex::new(engine),
+            inner: Mutex::new(model),
         }
     }
 }
@@ -41,18 +38,15 @@ impl SttEngine for ParakeetSttEngine {
     ) -> Result<TranscriptSegment> {
         let start = std::time::Instant::now();
 
-        let params = ParakeetInferenceParams {
-            timestamp_granularity: TimestampGranularity::Segment,
-            ..Default::default()
-        };
+        let options = TranscribeOptions::default();
 
-        let mut engine = self
+        let mut model = self
             .inner
             .lock()
-            .map_err(|e| anyhow::anyhow!("Failed to lock Parakeet engine: {}", e))?;
+            .map_err(|e| anyhow::anyhow!("Failed to lock Parakeet model: {}", e))?;
 
-        let result = engine
-            .transcribe_samples(audio_samples.to_vec(), Some(params))
+        let result = model
+            .transcribe(audio_samples, &options)
             .map_err(|e| anyhow::anyhow!("Parakeet transcription failed: {}", e))?;
 
         let duration_ms = start.elapsed().as_millis() as u64;

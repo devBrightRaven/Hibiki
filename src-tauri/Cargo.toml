@@ -68,7 +68,9 @@ chrono = "0.4"
 rusqlite = { version = "0.37", features = ["bundled"] }
 tar = "0.4.44"
 flate2 = "1.0"
-transcribe-rs = { version = "0.2.7", features = ["whisper", "parakeet", "moonshine", "sense_voice"], optional = true }
+# whisper feature disabled: whisper-rs-sys 0.11.1 has a build bug on Windows (full-width char in source)
+# Re-enable when whisper-rs upgrades to whisper-rs-sys >= 0.12
+transcribe-rs = { version = "0.3.0", features = ["onnx"], optional = true }
 handy-keys = "0.2.2"
 ferrous-opencc = "0.2.3"
 clap = { version = "4", features = ["derive"] }
@@ -109,6 +111,7 @@ tauri-utils = { git = "https://github.com/cjpais/tauri.git", branch = "handy-2.1
 
 [features]
 default = ["transcribe-rs"]
+whisper-cpp = ["transcribe-rs/whisper"]
 test-mock-transcription = []
 
 [dev-dependencies]

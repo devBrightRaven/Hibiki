@@ -5,7 +5,8 @@ pub mod types;
 pub mod parakeet_engine;
 #[cfg(feature = "transcribe-rs")]
 pub mod sensevoice_engine;
-#[cfg(feature = "transcribe-rs")]
+// whisper_engine requires both transcribe-rs and its whisper-cpp sub-feature
+#[cfg(all(feature = "transcribe-rs", feature = "whisper-cpp"))]
 pub mod whisper_engine;
 
 use anyhow::Result;

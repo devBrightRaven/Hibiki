@@ -1,12 +1,9 @@
 use super::{EngineId, SttEngine, TranscriptSegment};
 use anyhow::Result;
 use std::sync::Mutex;
-use transcribe_rs::{
-    engines::whisper::{WhisperEngine as Inner, WhisperInferenceParams},
-    TranscriptionEngine,
-};
+use transcribe_rs::{whisper_cpp::WhisperEngine as Inner, SpeechModel, TranscribeOptions};
 
-/// Wrapper around `transcribe_rs::WhisperEngine` implementing our `SttEngine` trait.
+/// Wrapper around `transcribe_rs::whisper_cpp::WhisperEngine` implementing our `SttEngine` trait.
 pub struct WhisperSttEngine {
     inner: Mutex<Inner>,
 }
@@ -41,19 +38,15 @@ impl SttEngine for WhisperSttEngine {
     ) -> Result<TranscriptSegment> {
         let start = std::time::Instant::now();
 
-        let whisper_language = language.map(|lang| match lang {
-            "zh-Hans" | "zh-Hant" => "zh".to_string(),
-            "auto" => return None,
-            other => other.to_string(),
+        let normalized_lang = language.and_then(|lang| match lang {
+            "auto" => None,
+            "zh-Hans" | "zh-Hant" => Some("zh".to_string()),
+            other => Some(other.to_string()),
         });
 
-        // Flatten Option<Option<String>> → Option<String>
-        let whisper_language = whisper_language.flatten();
-
-        let params = WhisperInferenceParams {
-            language: whisper_language.clone(),
+        let options = TranscribeOptions {
+            language: normalized_lang.clone(),
             translate: translate_to_english,
-            ..Default::default()
         };
 
         let mut engine = self
@@ -62,14 +55,14 @@ impl SttEngine for WhisperSttEngine {
             .map_err(|e| anyhow::anyhow!("Failed to lock whisper engine: {}", e))?;
 
         let result = engine
-            .transcribe_samples(audio_samples.to_vec(), Some(params))
+            .transcribe(audio_samples, &options)
             .map_err(|e| anyhow::anyhow!("Whisper transcription failed: {}", e))?;
 
         let duration_ms = start.elapsed().as_millis() as u64;
 
         Ok(TranscriptSegment {
             raw_text: result.text,
-            language: whisper_language.or_else(|| language.map(String::from)),
+            language: normalized_lang.or_else(|| language.map(String::from)),
             engine_id: EngineId::Whisper,
             duration_ms,
         })

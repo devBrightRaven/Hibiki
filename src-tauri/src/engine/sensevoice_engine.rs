@@ -1,33 +1,17 @@
 use super::{EngineId, SttEngine, TranscriptSegment};
 use anyhow::Result;
 use std::sync::Mutex;
-use transcribe_rs::{
-    engines::sense_voice::{
-        Language as SenseVoiceLanguage, SenseVoiceEngine as Inner, SenseVoiceInferenceParams,
-    },
-    TranscriptionEngine,
-};
+use transcribe_rs::{onnx::sense_voice::SenseVoiceModel, SpeechModel, TranscribeOptions};
 
-/// Wrapper around `transcribe_rs::SenseVoiceEngine` implementing our `SttEngine` trait.
+/// Wrapper around `transcribe_rs::onnx::sense_voice::SenseVoiceModel` implementing our `SttEngine` trait.
 pub struct SenseVoiceSttEngine {
-    inner: Mutex<Inner>,
+    inner: Mutex<SenseVoiceModel>,
 }
 
 impl SenseVoiceSttEngine {
-    pub fn new(engine: Inner) -> Self {
+    pub fn new(model: SenseVoiceModel) -> Self {
         Self {
-            inner: Mutex::new(engine),
-        }
-    }
-
-    fn resolve_language(lang: &str) -> SenseVoiceLanguage {
-        match lang {
-            "zh" | "zh-Hans" | "zh-Hant" => SenseVoiceLanguage::Chinese,
-            "en" => SenseVoiceLanguage::English,
-            "ja" => SenseVoiceLanguage::Japanese,
-            "ko" => SenseVoiceLanguage::Korean,
-            "yue" => SenseVoiceLanguage::Cantonese,
-            _ => SenseVoiceLanguage::Auto,
+            inner: Mutex::new(model),
         }
     }
 }
@@ -54,22 +38,18 @@ impl SttEngine for SenseVoiceSttEngine {
     ) -> Result<TranscriptSegment> {
         let start = std::time::Instant::now();
 
-        let sv_language = language
-            .map(Self::resolve_language)
-            .unwrap_or(SenseVoiceLanguage::Auto);
-
-        let params = SenseVoiceInferenceParams {
-            language: sv_language,
-            use_itn: true,
+        let options = TranscribeOptions {
+            language: language.map(String::from),
+            translate: false,
         };
 
-        let mut engine = self
+        let mut model = self
             .inner
             .lock()
-            .map_err(|e| anyhow::anyhow!("Failed to lock SenseVoice engine: {}", e))?;
+            .map_err(|e| anyhow::anyhow!("Failed to lock SenseVoice model: {}", e))?;
 
-        let result = engine
-            .transcribe_samples(audio_samples.to_vec(), Some(params))
+        let result = model
+            .transcribe(audio_samples, &options)
             .map_err(|e| anyhow::anyhow!("SenseVoice transcription failed: {}", e))?;
 
         let duration_ms = start.elapsed().as_millis() as u64;
